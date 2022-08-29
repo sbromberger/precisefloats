@@ -30,23 +30,25 @@ impl U4Pair {
     }
 
     /// return the values packed inside the U4Pair as two u8s, the second being an option.
-    fn deconstruct(self) -> (u8, Option<u8>) {
+    const fn deconstruct(self) -> (u8, Option<u8>) {
         let n1 = self.0 >> 4;
-        let n2 = self.0 & U4Pair::SENTINEL;
-        if n2 == U4Pair::SENTINEL {
-            return (n1, None);
-        }
-
-        (n1, Some(n2))
+        let n2 = match self.0 & U4Pair::SENTINEL {
+            U4Pair::SENTINEL => None,
+            v => Some(v),
+        };
+        (n1, n2)
     }
 
     /// Returns the number of digits held in the U4Pair.
-    fn n_digits(self) -> usize {
-        2 - (self.0 & U4Pair::SENTINEL == U4Pair::SENTINEL) as usize
+    const fn n_digits(self) -> usize {
+        match self.0 & U4Pair::SENTINEL {
+            U4Pair::SENTINEL => 1,
+            _ => 2,
+        }
     }
 
     /// Returns a new U4Pair with the second value removed.
-    fn remove_second(self) -> Self {
+    const fn remove_second(self) -> Self {
         U4Pair(self.0 | U4Pair::SENTINEL)
     }
 }
